@@ -50,7 +50,7 @@
   .modules-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 24px; max-width: 900px; width: 100%;
-    order: 3;
+    order: 1;
   }
   .module-card {
     background: #fff; border-radius: 22px; padding: 0;
@@ -119,10 +119,62 @@
     border: 2px dashed #dfe6e9;
   }
 
+  /* ========== 工具行 + 帮助按钮 ========== */
+  .tool-row { display: flex; align-items: stretch; gap: 8px; }
+  .tool-row .tool-btn { flex: 1; width: auto; }
+  .help-btn {
+    width: 42px; flex-shrink: 0; border-radius: 12px;
+    background: #fff; border: 1px solid #e8e8e8;
+    color: #b2bec3; font-size: 17px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .help-btn:hover { color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .blue .help-btn:hover { background: #74b9ff; border-color: #74b9ff; }
+  .green .help-btn:hover { background: #55efc4; border-color: #55efc4; }
+  .orange .help-btn:hover { background: #fdcb6e; border-color: #fdcb6e; }
+
+  /* ========== 使用说明弹窗 ========== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 300;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px; max-width: 620px; width: 100%;
+    max-height: 82vh; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    animation: modalIn 0.22s ease;
+  }
+  @keyframes modalIn { from { transform: translateY(12px); } to { transform: translateY(0); } }
+  .modal-header {
+    padding: 17px 22px; display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, #55efc4, #00b894);
+    color: #fff; font-size: 16px; font-weight: 700; flex-shrink: 0;
+  }
+  .modal-close {
+    margin-left: auto; width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); border: none; color: #fff;
+    cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.4); }
+  .modal-body { padding: 22px 26px; overflow-y: auto; font-size: 13px; color: #636e72; line-height: 1.8; }
+  .modal-body h4 { font-size: 14px; color: #2d3436; margin: 14px 0 6px; font-weight: 700; }
+  .modal-body h4:first-child { margin-top: 0; }
+  .modal-body ol { padding-left: 20px; }
+  .modal-body ol li { margin-bottom: 4px; }
+  .modal-body .notice {
+    background: #fff9e6; border-left: 3px solid #fdcb6e;
+    padding: 10px 14px; border-radius: 0 8px 8px 0;
+    margin-top: 12px; font-size: 12px; color: #856404; line-height: 1.6;
+  }
+
   /* ========== 更新记录模块 ========== */
   .changelog-section {
     max-width: 900px; width: 100%; margin-bottom: 28px;
-    order: 1;
+    order: 3;
   }
   .changelog-card {
     background: #fff; border-radius: 22px; overflow: hidden;
@@ -172,6 +224,24 @@
   .changelog-col ol li strong {
     color: #2d3436; font-weight: 600;
   }
+
+  /* ========== 卡片折叠（更新记录/使用指南） ========== */
+  .changelog-header, .guide-header { cursor: pointer; user-select: none; }
+  .collapse-arrow {
+    margin-left: auto; font-size: 13px; color: #b2bec3;
+    transition: transform 0.3s; flex-shrink: 0;
+    background: rgba(0,0,0,0.04); width: 26px; height: 26px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+  .changelog-card.collapsed .changelog-body,
+  .guide-card.collapsed .guide-body { display: none; }
+  .changelog-card.collapsed .collapse-arrow,
+  .guide-card.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .collapse-hint { font-size: 12px; color: #b2bec3; font-weight: 400; margin-left: auto; margin-right: 10px; }
+  .changelog-card.collapsed .collapse-hint::before { content: '点击展开'; }
+  .changelog-card:not(.collapsed) .collapse-hint::before { content: '点击收起'; }
+  .guide-card.collapsed .collapse-hint::before { content: '点击展开'; }
+  .guide-card:not(.collapsed) .collapse-hint::before { content: '点击收起'; }
 
   /* ========== 使用指南模块 ========== */
   .guide-section {
@@ -290,6 +360,38 @@
   }
   .back-btn:hover { background: rgba(255,255,255,0.38); }
   .tool-navbar-title { margin-left: 18px; font-size: 15px; font-weight: 600; color: #fff; }
+
+  /* 切换工具下拉菜单 */
+  .switch-wrap { position: relative; margin-left: auto; }
+  .switch-btn {
+    display: flex; align-items: center; gap: 6px; padding: 8px 15px;
+    background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 10px; color: #fff; font-size: 13px; cursor: pointer;
+    font-family: inherit; font-weight: 500; transition: background 0.15s;
+  }
+  .switch-btn:hover, .switch-btn.active { background: rgba(255,255,255,0.38); }
+  .switch-caret { font-size: 10px; transition: transform 0.2s; }
+  .switch-btn.active .switch-caret { transform: rotate(180deg); }
+  .switch-menu {
+    display: none; position: absolute; top: 46px; right: 0;
+    background: #fff; border-radius: 14px; box-shadow: 0 10px 36px rgba(0,0,0,0.2);
+    min-width: 240px; z-index: 200; padding: 6px;
+  }
+  .switch-menu.open { display: block; animation: modalIn 0.18s ease; }
+  .switch-menu .menu-label {
+    font-size: 11px; color: #b2bec3; padding: 8px 12px 4px; font-weight: 600;
+  }
+  .switch-menu button {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 10px 12px; border: none; background: transparent;
+    border-radius: 9px; font-size: 13px; color: #2d3436;
+    cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .switch-menu button:hover { background: #f0f7ff; color: #0984e3; }
+  .switch-menu button.current { background: #e8fff8; color: #00b894; font-weight: 700; cursor: default; }
+  .switch-menu button.current:hover { background: #e8fff8; color: #00b894; }
+  .switch-menu .menu-sep { height: 1px; background: #f0f0f0; margin: 4px 8px; }
+
   #toolFrame { flex: 1; width: 100%; border: none; background: #fff; }
 
   @media (max-width: 640px) {
@@ -303,7 +405,7 @@
 <div id="homeView">
   <div class="header">
     <h1>校区综合客服 AI 工具</h1>
-    <div class="version">版本：2.0 &nbsp;|&nbsp; 更新时间：2026年9月14日</div>
+    <div class="version">版本：2.5 &nbsp;|&nbsp; 更新时间：2026年9月16日</div>
     <p>一站式整合 · 高效办公 · 点击下方模块进入对应工具</p>
   </div>
   <div class="modules-grid">
@@ -315,15 +417,24 @@
       </div>
       <div class="card-body">
         <div class="tool-list">
-          <button class="tool-btn" onclick="openTool('diff')">
-            <span>自动制作教材差异表</span><span class="arrow">›</span>
-          </button>
-          <button class="tool-btn" onclick="openTool('sign')">
-            <span>自动制作教材签收表</span><span class="arrow">›</span>
-          </button>
-          <button class="tool-btn" onclick="openTool('schoolbag')">
-            <span>自动制作新生书包领取表</span><span class="arrow">›</span>
-          </button>
+          <div class="tool-row">
+            <button class="tool-btn" onclick="openTool('diff')">
+              <span>自动制作教材差异表</span><span class="arrow">›</span>
+            </button>
+            <button class="help-btn" onclick="showGuide('diff')" title="查看使用说明">?</button>
+          </div>
+          <div class="tool-row">
+            <button class="tool-btn" onclick="openTool('sign')">
+              <span>自动制作教材签收表</span><span class="arrow">›</span>
+            </button>
+            <button class="help-btn" onclick="showGuide('sign')" title="查看使用说明">?</button>
+          </div>
+          <div class="tool-row">
+            <button class="tool-btn" onclick="openTool('schoolbag')">
+              <span>自动制作新生书包领取表</span><span class="arrow">›</span>
+            </button>
+            <button class="help-btn" onclick="showGuide('schoolbag')" title="查看使用说明">?</button>
+          </div>
         </div>
       </div>
     </div>
@@ -335,9 +446,12 @@
       </div>
       <div class="card-body">
         <div class="tool-list">
-          <button class="tool-btn" onclick="openTool('attendance')">
-            <span>PNG班表转换考勤表</span><span class="arrow">›</span>
-          </button>
+          <div class="tool-row">
+            <button class="tool-btn" onclick="openTool('attendance')">
+              <span>PNG班表转换考勤表</span><span class="arrow">›</span>
+            </button>
+            <button class="help-btn" onclick="showGuide('attendance')" title="查看使用说明">?</button>
+          </div>
         </div>
       </div>
     </div>
@@ -349,13 +463,16 @@
       </div>
       <div class="card-body">
         <div class="tool-list">
-          <button class="tool-btn" onclick="openTool('voc')">
-            <span>VOC电话访谈业绩分析</span><span class="arrow">›</span>
-          </button>
+          <div class="tool-row">
+            <button class="tool-btn" onclick="openTool('voc')">
+              <span>VOC电话访谈业绩分析</span><span class="arrow">›</span>
+            </button>
+            <button class="help-btn" onclick="showGuide('voc')" title="查看使用说明">?</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="module-card gray">
+    <div class="module-card gray" style="display:none;">
       <div class="card-top">
         <div class="module-icon">⏳</div>
         <div class="module-title">待更新</div>
@@ -370,10 +487,12 @@
   </div>
 
   <div class="changelog-section">
-    <div class="changelog-card">
-      <div class="changelog-header">
+    <div class="changelog-card collapsed">
+      <div class="changelog-header" onclick="toggleCard(this)">
         <div class="changelog-icon">📝</div>
         <div class="changelog-title">更新记录</div>
+        <span class="collapse-hint"></span>
+        <span class="collapse-arrow">▾</span>
       </div>
       <div class="changelog-body">
         <div class="changelog-col update" style="grid-column: 1 / -1;">
@@ -391,14 +510,16 @@
   </div>
 
   <div class="guide-section">
-    <div class="guide-card">
-      <div class="guide-header">
+    <div class="guide-card collapsed">
+      <div class="guide-header" onclick="toggleCard(this)">
         <div class="guide-icon">📖</div>
         <div class="guide-title">使用指南</div>
+        <span class="collapse-hint"></span>
+        <span class="collapse-arrow">▾</span>
       </div>
       <div class="guide-body">
 
-        <details class="guide-item">
+        <details class="guide-item" id="guide-diff">
           <summary>📚 自动制作教材差异表</summary>
           <div class="guide-content">
             <h4>工具功能</h4>
@@ -418,7 +539,7 @@
           </div>
         </details>
 
-        <details class="guide-item">
+        <details class="guide-item" id="guide-sign">
           <summary>📦 自动制作教材签收表</summary>
           <div class="guide-content">
             <h4>工具功能</h4>
@@ -438,7 +559,7 @@
           </div>
         </details>
 
-        <details class="guide-item">
+        <details class="guide-item" id="guide-schoolbag">
           <summary>🎒 自动制作新生书包领取表</summary>
           <div class="guide-content">
             <h4>工具功能</h4>
@@ -457,7 +578,7 @@
           </div>
         </details>
 
-        <details class="guide-item">
+        <details class="guide-item" id="guide-attendance">
           <summary>📋 PNG班表转换考勤表</summary>
           <div class="guide-content">
             <h4>工具功能</h4>
@@ -478,7 +599,7 @@
           </div>
         </details>
 
-        <details class="guide-item">
+        <details class="guide-item" id="guide-voc">
           <summary>📊 VOC电话访谈业绩分析</summary>
           <div class="guide-content">
             <h4>工具功能</h4>
@@ -506,8 +627,37 @@
       <span>←</span><span>返回主页</span>
     </button>
     <span class="tool-navbar-title" id="toolTitle"></span>
+    <div class="switch-wrap">
+      <button class="switch-btn" id="switchBtn" onclick="toggleSwitchMenu(event)">
+        <span>切换工具</span><span class="switch-caret">▼</span>
+      </button>
+      <div class="switch-menu" id="switchMenu">
+        <div class="menu-label">开课工作</div>
+        <button data-tool="diff" onclick="openTool('diff')">📚 自动制作教材差异表</button>
+        <button data-tool="sign" onclick="openTool('sign')">📦 自动制作教材签收表</button>
+        <button data-tool="schoolbag" onclick="openTool('schoolbag')">🎒 自动制作新生书包领取表</button>
+        <div class="menu-sep"></div>
+        <div class="menu-label">日常工作</div>
+        <button data-tool="attendance" onclick="openTool('attendance')">📋 PNG班表转换考勤表</button>
+        <div class="menu-sep"></div>
+        <div class="menu-label">VOC工作</div>
+        <button data-tool="voc" onclick="openTool('voc')">📊 VOC电话访谈业绩分析</button>
+      </div>
+    </div>
   </div>
   <iframe id="toolFrame" src="about:blank"></iframe>
+</div>
+
+<!-- 使用说明弹窗 -->
+<div class="modal-overlay" id="guideModal" onclick="closeGuide(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span id="modalIcon">📖</span>
+      <span id="modalTitle">使用说明</span>
+      <button class="modal-close" onclick="closeGuide()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
 </div>
 
 <script>
@@ -521,6 +671,8 @@ function b64DecodeUnicode(str) {
   }
 }
 
+var currentToolKey = null;
+
 function openTool(key) {
   var tool = TOOLS[key];
   if (!tool) { alert('工具未找到'); return; }
@@ -529,6 +681,15 @@ function openTool(key) {
   document.getElementById('toolFrame').srcdoc = content;
   document.getElementById('toolView').classList.add('active');
   document.body.style.overflow = 'hidden';
+  currentToolKey = key;
+  // 高亮切换菜单中的当前工具
+  var menuBtns = document.querySelectorAll('#switchMenu button[data-tool]');
+  menuBtns.forEach(function(btn) {
+    if (btn.getAttribute('data-tool') === key) { btn.classList.add('current'); }
+    else { btn.classList.remove('current'); }
+  });
+  closeSwitchMenu();
+  window.scrollTo(0, 0);
 }
 
 function closeTool() {
@@ -536,7 +697,59 @@ function closeTool() {
   document.getElementById('toolFrame').srcdoc = '';
   document.getElementById('toolFrame').src = 'about:blank';
   document.body.style.overflow = '';
+  currentToolKey = null;
+  closeSwitchMenu();
 }
+
+/* ========== 卡片折叠 / 展开 ========== */
+function toggleCard(headerEl) {
+  headerEl.parentElement.classList.toggle('collapsed');
+}
+
+/* ========== 使用说明弹窗 ========== */
+var GUIDE_ICONS = { diff: '📚', sign: '📦', schoolbag: '🎒', attendance: '📋', voc: '📊' };
+function showGuide(key) {
+  var item = document.getElementById('guide-' + key);
+  if (!item) { alert('未找到该工具的使用说明'); return; }
+  var tool = TOOLS[key];
+  document.getElementById('modalIcon').textContent = GUIDE_ICONS[key] || '📖';
+  document.getElementById('modalTitle').textContent = tool ? tool.title : '使用说明';
+  document.getElementById('modalBody').innerHTML = item.querySelector('.guide-content').innerHTML;
+  document.getElementById('guideModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeGuide() {
+  document.getElementById('guideModal').classList.remove('active');
+  if (!document.getElementById('toolView').classList.contains('active')) {
+    document.body.style.overflow = '';
+  }
+}
+
+/* ========== 切换工具下拉菜单 ========== */
+function toggleSwitchMenu(e) {
+  e.stopPropagation();
+  document.getElementById('switchMenu').classList.toggle('open');
+  document.getElementById('switchBtn').classList.toggle('active');
+}
+function closeSwitchMenu() {
+  document.getElementById('switchMenu').classList.remove('open');
+  document.getElementById('switchBtn').classList.remove('active');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.switch-wrap')) { closeSwitchMenu(); }
+});
+
+/* ========== Esc 快捷键：关闭说明弹窗 / 返回主页 ========== */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' || e.keyCode === 27) {
+    var modal = document.getElementById('guideModal');
+    if (modal.classList.contains('active')) {
+      closeGuide();
+    } else if (document.getElementById('toolView').classList.contains('active')) {
+      closeTool();
+    }
+  }
+});
 </script>
 
 </body>
