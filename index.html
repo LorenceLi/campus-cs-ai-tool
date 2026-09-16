@@ -49,8 +49,8 @@
 
   .modules-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 24px; max-width: 900px; width: 100%;
-    order: 1;
+    gap: 26px; max-width: 900px; width: 100%;
+    order: 1; margin-bottom: 42px;
   }
   .module-card {
     background: #fff; border-radius: 22px; padding: 0;
@@ -509,15 +509,8 @@
     </div>
   </div>
 
-  <div class="guide-section">
-    <div class="guide-card collapsed">
-      <div class="guide-header" onclick="toggleCard(this)">
-        <div class="guide-icon">📖</div>
-        <div class="guide-title">使用指南</div>
-        <span class="collapse-hint"></span>
-        <span class="collapse-arrow">▾</span>
-      </div>
-      <div class="guide-body">
+  <!-- 使用说明数据区（供工具旁「?」弹窗调用，页面不显示） -->
+  <div id="guideData" style="display:none;">
 
         <details class="guide-item" id="guide-diff">
           <summary>📚 自动制作教材差异表</summary>
@@ -615,8 +608,6 @@
           </div>
         </details>
 
-      </div>
-    </div>
   </div>
 
 </div>
