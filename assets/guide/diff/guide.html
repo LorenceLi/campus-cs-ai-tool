@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自动制作教材差异表 · 使用说明</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff8c42'/><rect x='26' y='24' width='48' height='52' rx='6' fill='white'/><rect x='34' y='36' width='32' height='5' rx='2' fill='%23ff8c42'/><rect x='34' y='47' width='32' height='5' rx='2' fill='%23ffb27a'/><rect x='34' y='58' width='20' height='5' rx='2' fill='%23ffb27a'/></svg>">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --orange:#ff8c42; --orange-deep:#f2731f; --orange-soft:#fff3ea;
+    --ink:#2d3436; --ink-sub:#8d6e63; --line:#f0e2d4;
+  }
+  html{ scroll-behavior:smooth; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color:var(--ink); background:#fef9f3; line-height:1.7;
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(255,126,95,.10) 0, transparent 42%),
+      radial-gradient(circle at 92% 78%, rgba(254,180,123,.12) 0, transparent 42%),
+      radial-gradient(circle at 50% 50%, rgba(255,140,66,.05) 0, transparent 60%);
+  }
+  .wrap{ max-width:960px; margin:0 auto; padding:0 22px 70px; }
+
+  /* ===== 顶部 ===== */
+  .hero{ text-align:center; padding:58px 20px 34px; }
+  .hero .badge{
+    display:inline-flex; align-items:center; gap:7px;
+    background:rgba(255,140,66,.14); color:var(--orange-deep);
+    font-size:13px; font-weight:600; padding:6px 16px; border-radius:20px; margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:34px; font-weight:800; letter-spacing:1px; margin-bottom:12px;
+    background:linear-gradient(135deg,#ff7e5f,#feb47b);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero p{ color:var(--ink-sub); font-size:15px; max-width:640px; margin:0 auto; }
+
+  /* ===== 目录 ===== */
+  .toc{
+    background:#fff; border-radius:18px; padding:22px 26px; margin:8px 0 34px;
+    box-shadow:0 4px 20px rgba(0,0,0,.05); border:1px solid var(--line);
+  }
+  .toc h3{ font-size:15px; color:var(--orange-deep); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .toc ol{ list-style:none; display:grid; grid-template-columns:repeat(2,1fr); gap:10px 22px; counter-reset:toc; }
+  .toc li{ counter-increment:toc; }
+  .toc a{
+    display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none;
+    font-size:14.5px; padding:7px 12px; border-radius:10px; transition:all .18s;
+  }
+  .toc a::before{
+    content:counter(toc); flex:none; width:24px; height:24px; border-radius:50%;
+    background:var(--orange-soft); color:var(--orange-deep); font-size:12.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .toc a:hover{ background:var(--orange-soft); color:var(--orange-deep); transform:translateX(3px); }
+
+  /* ===== 章节标题 ===== */
+  .chapter{ margin:46px 0 8px; }
+  .chapter-head{ display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .chapter-num{
+    flex:none; width:46px; height:46px; border-radius:14px; color:#fff; font-weight:800; font-size:19px;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(242,115,31,.3);
+  }
+  .chapter-head h2{ font-size:22px; font-weight:800; }
+  .chapter-head .sub{ font-size:13px; color:var(--ink-sub); margin-top:2px; }
+
+  /* ===== 准备：4 份表格 ===== */
+  .files{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .file-card{
+    background:#fff; border-radius:16px; padding:18px 18px 16px; border:1px solid var(--line);
+    box-shadow:0 3px 14px rgba(0,0,0,.04); position:relative;
+  }
+  .file-card.wide{ grid-column:1 / -1; }
+  .file-card .mod{
+    display:inline-block; font-size:12px; font-weight:700; color:#fff;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    padding:3px 11px; border-radius:8px; margin-bottom:9px;
+  }
+  .file-card h4{ font-size:15.5px; margin-bottom:5px; }
+  .file-card p{ font-size:13.5px; color:var(--ink-sub); }
+  .src-tag{
+    display:inline-flex; align-items:center; gap:5px; margin-top:10px; font-size:12.5px; font-weight:600;
+    color:var(--orange-deep); background:var(--orange-soft); padding:4px 11px; border-radius:8px;
+  }
+
+  /* ===== 步骤 ===== */
+  .step{ margin-bottom:30px; scroll-margin-top:24px; }
+  .step-title{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .step-no{
+    flex:none; width:32px; height:32px; border-radius:50%; font-size:14px; font-weight:800; color:#fff;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-title h3{ font-size:17px; font-weight:700; }
+  .step-desc{ font-size:14.5px; color:#5d5148; margin:0 0 12px 44px; }
+  .shot{
+    background:#fff; border-radius:14px; padding:10px; border:1px solid var(--line);
+    box-shadow:0 6px 22px rgba(0,0,0,.07); margin-left:44px;
+  }
+  .shot img{
+    display:block; width:100%; border-radius:9px; cursor:zoom-in; border:1px solid #f3ece5;
+  }
+  .note{
+    margin:10px 0 0 44px; font-size:13.5px; color:#8a5a2b; background:#fff6ec;
+    border-left:3px solid var(--orange); border-radius:0 10px 10px 0; padding:10px 15px;
+  }
+
+  /* ===== Lightbox ===== */
+  .lightbox{
+    position:fixed; inset:0; background:rgba(30,20,12,.86); z-index:99;
+    display:none; align-items:center; justify-content:center; padding:34px;
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox img{ max-width:100%; max-height:100%; border-radius:10px; box-shadow:0 12px 50px rgba(0,0,0,.5); }
+  .lightbox .close{
+    position:absolute; top:20px; right:26px; width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.16); color:#fff; border:none; font-size:22px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lightbox .close:hover{ background:rgba(255,255,255,.3); }
+
+  footer{ text-align:center; color:var(--ink-sub); font-size:13px; margin-top:50px; padding-top:26px; border-top:1px solid var(--line); }
+
+  @media (max-width:680px){
+    .hero h1{ font-size:27px; }
+    .toc ol{ grid-template-columns:1fr; }
+    .files{ grid-template-columns:1fr; }
+    .chapter-head h2{ font-size:19px; }
+    .step-desc, .shot, .note{ margin-left:0; }
+    .step-title{ gap:10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ===== 顶部 ===== -->
+  <header class="hero">
+    <span class="badge">图文使用说明 · 零基础分步指引</span>
+    <h1>自动制作教材差异表</h1>
+    <p>本工具可一键生成各班级的教材清点差异表，自动对比库存与在班人数。下面按「准备表格 → 库存取数 → 学员取数 → 导入生成」的顺序，带您完整走一遍操作流程。</p>
+  </header>
+
+  <!-- ===== 目录 ===== -->
+  <nav class="toc">
+    <h3>本说明目录</h3>
+    <ol>
+      <li><a href="#ch1">准备：4 份数据表格</a></li>
+      <li><a href="#ch2">下载模块4空白模板</a></li>
+      <li><a href="#ch3">获取模块2《教材库存明细》</a></li>
+      <li><a href="#ch4">获取模块3《学员信息》</a></li>
+      <li><a href="#ch5">导入工具并生成差异表</a></li>
+    </ol>
+  </nav>
+
+  <!-- ===== 章节1：准备 ===== -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-head">
+      <div class="chapter-num">1</div>
+      <div><h2>准备：4 份数据表格</h2><div class="sub">工具运行前，需要先备齐以下 4 份文件</div></div>
+    </div>
+    <div class="files">
+      <div class="file-card">
+        <span class="mod">模块 1</span>
+        <h4>教材发放明细</h4>
+        <p>本季度各班级对应教材的发放清单，可直接使用季度开课时的发放明细。</p>
+        <span class="src-tag">来源：钉钉「校区物资配送对接群」</span>
+      </div>
+      <div class="file-card">
+        <span class="mod">模块 2</span>
+        <h4>教材库存明细</h4>
+        <p>各教材的库存数量记录，按下面第 3 章从教学物资管理系统导出。</p>
+        <span class="src-tag">来源：教学物资管理系统（见第 3 章）</span>
+      </div>
+      <div class="file-card">
+        <span class="mod">模块 3</span>
+        <h4>学员明细（学员信息）</h4>
+        <p>学员维度的考勤明细，按下面第 4 章从 ERP 导出。</p>
+        <span class="src-tag">来源：ERP 导出（见第 4 章）</span>
+      </div>
+      <div class="file-card">
+        <span class="mod">模块 4</span>
+        <h4>教材差异表模板</h4>
+        <p>差异表的空白格式模板，无需自己制作，直接在网页下载。</p>
+        <span class="src-tag">来源：网页「模板下载」</span>
+      </div>
+    </div>
+    <div class="note">模块 1 可直接使用钉钉「校区物资配送对接群」或其他途径获得的每季度开课时教材发放明细；模块 4 在网页下方「模板下载」中获取。因此本说明重点演示模块 2、3 的获取方式与工具的使用。</div>
+  </section>
+
+  <!-- ===== 章节2：下载模板 ===== -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-head">
+      <div class="chapter-num">2</div>
+      <div><h2>下载模块4空白模板</h2><div class="sub">先把模块 4 的空白模板下载到电脑</div></div>
+    </div>
+    <div class="step">
+      <div class="step-title"><span class="step-no">1</span><h3>展开「模板下载」卡片</h3></div>
+      <p class="step-desc">在网页主页找到「模板下载」卡片，点击展开后，下载「教材差异表-模板」文件，即模块 4。</p>
+      <div class="shot"><img src="diff-01.jpg" alt="网页模板下载卡片" loading="lazy"></div>
+    </div>
+  </section>
+
+  <!-- ===== 章节3：模块2 教材库存明细 ===== -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-head">
+      <div class="chapter-num">3</div>
+      <div><h2>获取模块2《教材库存明细》</h2><div class="sub">在教学物资管理系统的「库存报表」中查询并导出</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">2</span><h3>进入教学物资管理系统</h3></div>
+      <p class="step-desc">从「新东方集团统一门户」进入教学物资管理系统，默认打开「我的资产」页面，可看到左侧的功能菜单。</p>
+      <div class="shot"><img src="diff-02.jpg" alt="教学物资管理系统我的资产页面" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">3</span><h3>打开「库存报表」并查询</h3></div>
+      <p class="step-desc">点击左侧「统计报表」展开后选择「库存报表」，在「所属组织」选择对应学校、「仓库」选择对应校区仓库，然后点击「查询」，下方会列出该仓库的教材库存。</p>
+      <div class="shot"><img src="diff-03.jpg" alt="库存报表选择组织仓库并查询" loading="lazy"></div>
+      <div class="note">请按实际所属组织与仓库填写，确保要制作差异表的校区仓库及其全部教材都被查询出来。</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">4</span><h3>点击「导出」</h3></div>
+      <p class="step-desc">确认查询结果无误后，点击左上方的「导出」按钮，浏览器会下载对应的库存 Excel 文件。</p>
+      <div class="shot"><img src="diff-04.jpg" alt="点击导出库存报表" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">5</span><h3>完成模块2《教材库存明细》</h3></div>
+      <p class="step-desc">打开刚下载的 Excel，里面包含学校名称、仓库、商品编码、商品名称、各类出入库数量、库存数量与 ISBN 等信息，这就是工具所需的模块 2《教材库存明细》，无需再做任何修改。</p>
+      <div class="shot"><img src="diff-05.jpg" alt="导出的教材库存明细表" loading="lazy"></div>
+    </div>
+  </section>
+
+  <!-- ===== 章节4：模块3 学员信息 ===== -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-head">
+      <div class="chapter-num">4</div>
+      <div><h2>获取模块3《学员信息》</h2><div class="sub">在 ERP 的「班级课次明细」中查询并导出学员考勤明细</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">6</span><h3>登录 ERP 系统</h3></div>
+      <p class="step-desc">在浏览器打开 ERP 系统（erp.xdf.cn），使用账号登录，进入系统首页。</p>
+      <div class="shot"><img src="diff-06.jpg" alt="ERP 系统首页" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">7</span><h3>进入「考勤管理」页面</h3></div>
+      <p class="step-desc">点击顶部导航栏中的「考勤管理」，进入考勤管理的数据总览页面。</p>
+      <div class="shot"><img src="diff-07.jpg" alt="考勤管理数据总览页面" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">8</span><h3>打开「班级课次明细」并筛选</h3></div>
+      <p class="step-desc">在左侧菜单选择「班级课次明细」，依次选择或填写：「教学区」为对应校区、「人员」选择「学员」、「考勤状态」选择「全部」、「请假」选择「全部」、「时间」填写开课起止日期，然后点击「查询」。</p>
+      <div class="shot"><img src="diff-08.jpg" alt="班级课次明细填写筛选条件" loading="lazy"></div>
+      <div class="note">「考勤状态」与「请假」都建议选择「全部」，这样请假、调课、未打卡等情况的学员都会被包含进来，避免遗漏。</div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">9</span><h3>点击「导出」下载 Excel</h3></div>
+      <p class="step-desc">确认下方明细无误后，点击「导出」按钮，下载学员明细 Excel。</p>
+      <div class="shot"><img src="diff-09.jpg" alt="点击导出班级课次明细" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">10</span><h3>完成模块3《学员信息》</h3></div>
+      <p class="step-desc">打开下载的 Excel，里面包含校区、班级、课次、教室、时间以及每位学员的姓名、编号等信息，这就是模块 3《学员信息》。原始数据可直接使用，无需手动处理。</p>
+      <div class="shot"><img src="diff-10.jpg" alt="导出的学员信息表（已脱敏）" loading="lazy"></div>
+      <div class="note">为保护学员隐私，本说明中的截图已对学员姓名与编号做脱敏处理，您实际导出的文件会显示真实信息，可正常使用。</div>
+    </div>
+  </section>
+
+  <!-- ===== 章节5：导入生成 ===== -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-head">
+      <div class="chapter-num">5</div>
+      <div><h2>导入工具并生成差异表</h2><div class="sub">4 份文件备齐后，回到网页工具完成最后一步</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">11</span><h3>将四个文件导入对应模块</h3></div>
+      <p class="step-desc">打开「自动制作教材差异表」工具，把前面准备好的 4 份文件分别上传到模块 1～4 对应的上传区，每个模块都会显示已上传的文件名与识别出的记录数。</p>
+      <div class="shot"><img src="diff-11.jpg" alt="四个模块上传界面" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">12</span><h3>点击「生成差异表」</h3></div>
+      <p class="step-desc">确认 4 个模块均已上传后，点击下方「生成差异表」按钮，工具会自动按学员编号去重、对比库存与在班人数。</p>
+      <div class="shot"><img src="diff-12.jpg" alt="点击生成差异表" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">13</span><h3>点击「导出 Excel」</h3></div>
+      <p class="step-desc">生成完成后，页面会显示班级总数、教材种类、库存充足、教材缺口等统计，并在下方列出每个班级的差异结果，点击「导出 Excel」即可下载。</p>
+      <div class="shot"><img src="diff-13.jpg" alt="生成结果并点击导出Excel" loading="lazy"></div>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-no">14</span><h3>获得教材差异表</h3></div>
+      <p class="step-desc">打开下载的 Excel，即最终的「教材清点差异表」，按班级列出教材名称、现有库存、在班人数、秋季差异与备注，可直接用于后续教材申领与核对。</p>
+      <div class="shot"><img src="diff-14.jpg" alt="下载的教材差异表" loading="lazy"></div>
+    </div>
+  </section>
+
+  <footer>
+    自动制作教材差异表 · 图文使用说明<br>
+    如操作中遇到问题，可对照本说明检查 4 份表格是否齐全、查询条件是否正确。
+  </footer>
+</div>
+
+<!-- ===== 图片放大 Lightbox ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="close" id="lbClose" aria-label="关闭">&times;</button>
+  <img id="lbImg" src="" alt="放大查看">
+</div>
+
+<script>
+  (function(){
+    var box=document.getElementById('lightbox'),
+        img=document.getElementById('lbImg'),
+        close=document.getElementById('lbClose');
+    document.querySelectorAll('.shot img').forEach(function(pic){
+      pic.addEventListener('click',function(){
+        img.src=pic.src; box.classList.add('open');
+      });
+    });
+    function hide(){ box.classList.remove('open'); img.src=''; }
+    close.addEventListener('click',hide);
+    box.addEventListener('click',function(e){ if(e.target===box) hide(); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') hide(); });
+  })();
+</script>
+</body>
+</html>
